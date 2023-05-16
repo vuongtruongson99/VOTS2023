@@ -2,6 +2,12 @@
 
 ## ProContEXT: Exploring Progressive Context Transformer for Tracking
 
+## TODO List
+[x] Custom data cho fit với dataloader
+[] Chạy n tracker ứng với n object trong từng seq
+[] Visualize kết quả xem sao
+[] Update toolkit lên 0.6.2
+
 <p align='left'>
   <img src='assets/framework.png' width='900'/>
 </p>
