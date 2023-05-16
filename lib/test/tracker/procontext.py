@@ -55,7 +55,7 @@ class ProContEXT(BaseTracker):
         crop_resize_patches = [sample_target(image, info['init_bbox'], factor, output_sz=self.params.template_size)
                                                     for factor in self.params.template_factor]
         z_patch_arr, resize_factor, z_amask_arr = zip(*crop_resize_patches)
-        print(z_patch_arr)
+        # print(z_patch_arr)
         for idx in range(len(z_patch_arr)):
             template = self.preprocessor.process(z_patch_arr[idx], z_amask_arr[idx])
             with torch.no_grad():
@@ -123,10 +123,10 @@ class ProContEXT(BaseTracker):
                 save_path = os.path.join(self.save_dir, "%04d.jpg" % self.frame_id)
                 cv2.imwrite(save_path, image_BGR)
             else:
-                self.visdom.register((image, info['gt_bbox'].tolist(), self.state), 'Tracking', 1, 'Tracking')
+                self.visdom.register((image, self.state), 'Tracking', 1, 'Tracking')
 
                 self.visdom.register(torch.from_numpy(x_patch_arr).permute(2, 0, 1), 'image', 1, 'search_region')
-                self.visdom.register(torch.from_numpy(self.z_patch_arr).permute(2, 0, 1), 'image', 1, 'template')
+                # self.visdom.register(torch.from_numpy(self.z_patch_arr).permute(2, 0, 1), 'image', 1, 'template')
                 self.visdom.register(pred_score_map.view(self.feat_sz, self.feat_sz), 'heatmap', 1, 'score_map')
                 self.visdom.register((pred_score_map * self.output_window).view(self.feat_sz, self.feat_sz), 'heatmap', 1, 'score_map_hann')
 

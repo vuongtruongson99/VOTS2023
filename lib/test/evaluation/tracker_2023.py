@@ -81,7 +81,9 @@ class Tracker:
         params.debug = debug_
 
         # Get init information
-        init_info = seq.init_info()
+        temp_info = seq.init_info()
+        temp_info['init_bbox'] = temp_info['init_bbox'][self.run_id] 
+        init_info = temp_info
         print("Init info: ", init_info)
 
         tracker = self.create_tracker(params)
@@ -134,9 +136,10 @@ class Tracker:
 
             info = seq.frame_info(frame_num)
             info['previous_output'] = prev_output
-
-            if len(seq.ground_truth_rect) > 1:
-                info['gt_bbox'] = seq.ground_truth_rect[frame_num]
+            # info['gt_bbox'] = seq.ground_truth_rect[self.run_id]
+            # if len(seq.ground_truth_rect) > 1:
+            #     print(seq.ground_truth_rect[self.run_id])
+            #     info['gt_bbox'] = seq.ground_truth_rect[frame_num]
             out = tracker.track(image, info)
             prev_output = OrderedDict(out)
             _store_outputs(out, {'time': time.time() - start_time})

@@ -4,8 +4,9 @@
 
 ## TODO List
 - [x] Custom data cho fit với dataloader
-- [ ] Chạy n tracker ứng với n object trong từng seq
-- [ ] Visualize kết quả xem sao
+- [x] Chạy n tracker ứng với n object trong từng seq
+- [x] Visualize kết quả xem sao
+- [ ] Chạy với multithread
 - [ ] Update toolkit lên 0.6.2
 
 <p align='left'>
