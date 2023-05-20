@@ -154,7 +154,7 @@ def run_sequence(seq: Sequence, tracker: Tracker, debug=False, num_gpu=8):
 
 
 # def run_dataset(dataset, trackers, debug=False, threads=0, num_gpus=8):
-def run_dataset(dataset, debug=False, threads=0, num_gpus=8):
+def run_dataset(dataset, debug=False, threads=0, num_gpus=1):
     """Runs a list of trackers on a dataset.
     args:
         dataset: List of Sequence instances, forming a dataset.
@@ -175,25 +175,31 @@ def run_dataset(dataset, debug=False, threads=0, num_gpus=8):
         mode = 'parallel'
 
     if mode == 'sequential':
+        print("In sequential")
         for seq in dataset:
             ######################################################################################################################
             # Trong seq nếu có nhiều obj cần tracking => nhiều init_bbox
             # có dạng là: Init info:  {'init_bbox': OrderedDict([(1, [642.0, 315.0, 78.0, 128.0]), (2, [694.0, 396.0, 89.0, 76.0])])}
             # 
             # => Giải pháp tạm thời: có bao nhiêu bbox, tạo bấy nhiêu tracker tương ứng với run_id của init_bbox
-            print(seq.init_bbox())
-            for seq_obj_id in iter(seq.init_bbox()):
-                tracker = Tracker('procontext', 'procontext', 'vot2023', seq.name, seq_obj_id)    # gọi từng tracker cho từng object trong seq
-                run_sequence(seq, tracker, debug=debug)
-
-            # for tracker_info in trackers:
-            #     run_sequence(seq, tracker_info, debug=debug)
+            # print(len(seq.frames))
+            if len(seq.frames) < 200:
+                for seq_obj_id in iter(seq.init_bbox()):
+                    tracker = Tracker('procontext', 'procontext', 'vot2023', seq.name, seq_obj_id)    # gọi từng tracker cho từng object trong seq
+                    run_sequence(seq, tracker, debug=debug)
 
             ######################################################################################################################
-    ##############################################3
-    ## Hiện chưa làm phần này
-    # elif mode == 'parallel':
-    #     param_list = [(seq, tracker_info, debug, num_gpus) for seq, tracker_info in product(dataset, trackers)]
-    #     with multiprocessing.Pool(processes=threads) as pool:
-    #         pool.starmap(run_sequence, param_list)
+  
+    elif mode == 'parallel':
+        print("In parallel")
+        # print(dataset)
+        # param_list = [(seq, tracker_info, debug, num_gpus) for seq, tracker_info in product(dataset, trackers)]
+        param_list = []
+        for seq in dataset:
+            for seq_obj_id in iter(seq.init_bbox()):
+                tracker = Tracker('procontext', 'procontext', 'vot2023', seq.name, seq_obj_id)
+                param_list.append((seq, tracker, debug, num_gpus))
+        # print(param_list)
+        with multiprocessing.Pool(processes=threads) as pool:
+            pool.starmap(run_sequence, param_list)
     print('Done')

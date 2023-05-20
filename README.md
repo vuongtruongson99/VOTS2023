@@ -6,8 +6,10 @@
 - [x] Custom data cho fit với dataloader
 - [x] Chạy n tracker ứng với n object trong từng seq
 - [x] Visualize kết quả xem sao
-- [ ] Chạy với multithread
-- [ ] Update toolkit lên 0.6.2
+- [x] Chạy với multithread
+- [x] Update toolkit lên 0.6.2
+- [ ] Đặt threshold cho tracker
+- [ ] Tích hợp với SAM
 
 <p align='left'>
   <img src='assets/framework.png' width='900'/>

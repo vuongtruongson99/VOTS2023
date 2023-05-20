@@ -10,13 +10,17 @@ from lib.test.evaluation import get_dataset
 from lib.test.evaluation.running_2023 import run_dataset
 from lib.test.evaluation.tracker import Tracker
 
-dataset_name = 'vot23'
-tracker_name = 'procontext'
-tracker_param = 'procontext'
-run_ids = 2
+def main():
+    dataset_name = 'vot23'
+    tracker_name = 'procontext'
+    tracker_param = 'procontext'
+    run_ids = 2
 
-dataset = get_dataset(dataset_name)
-# # # print(len(dataset[0].ground_truth_rect))
-# trackers = [Tracker(tracker_name, tracker_param, dataset_name, run_id) for run_id in range(run_ids)]
-# print(trackers)
-run_dataset(dataset, debug=True, threads=0)
+    dataset = get_dataset(dataset_name)
+    # # # print(len(dataset[0].ground_truth_rect))
+    # trackers = [Tracker(tracker_name, tracker_param, dataset_name, run_id) for run_id in range(run_ids)]
+    # print(trackers)
+    run_dataset(dataset, debug=False, threads=3)    # tùy vào số core để chạy
+
+if __name__ == '__main__':
+    main()

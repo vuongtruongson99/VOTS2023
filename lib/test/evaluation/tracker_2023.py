@@ -48,7 +48,7 @@ class Tracker:
         if self.run_id is None:
             self.results_dir = '{}/{}/{}'.format(env.results_path, self.name, self.parameter_name)
         else:   # <--- từng tracker cho từng object chạy vào đây
-            self.results_dir = '{}/{}/{}_{:03d}'.format(env.results_path, self.name, self.seq_name, self.run_id)
+            self.results_dir = '{}/{}/{}/{:03d}'.format(env.results_path, self.name, self.seq_name, self.run_id)
         if result_only:
             self.results_dir = '{}/{}'.format(env.results_path, self.name)
         
