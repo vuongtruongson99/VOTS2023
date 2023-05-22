@@ -2,6 +2,8 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 
+import matplotlib.pyplot as plt
+
 from lib.models.layers.frozen_bn import FrozenBatchNorm2d
 
 
@@ -238,9 +240,9 @@ def build_box_head(cfg, hidden_dim):
             raise ValueError()
         return corner_head
     elif cfg.MODEL.HEAD.TYPE == "CENTER":
-        in_channel = hidden_dim
-        out_channel = cfg.MODEL.HEAD.NUM_CHANNELS
-        feat_sz = int(cfg.DATA.SEARCH.SIZE / stride)
+        in_channel = hidden_dim                         # 768
+        out_channel = cfg.MODEL.HEAD.NUM_CHANNELS       # 256
+        feat_sz = int(cfg.DATA.SEARCH.SIZE / stride)    # feat_sz = 384 / 16 = 24
         center_head = CenterPredictor(inplanes=in_channel, channel=out_channel,
                                       feat_sz=feat_sz, stride=stride)
         return center_head

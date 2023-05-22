@@ -31,8 +31,8 @@ class ProContEXT(nn.Module):
         self.aux_loss = aux_loss
         self.head_type = head_type
         if head_type == "CORNER" or head_type == "CENTER":
-            self.feat_sz_s = int(box_head.feat_sz)
-            self.feat_len_s = int(box_head.feat_sz ** 2)
+            self.feat_sz_s = int(box_head.feat_sz)              # score_map có size là 24x24 => box_head.feat_sz = 24
+            self.feat_len_s = int(box_head.feat_sz ** 2)        # số lượng feature = 24x24 = 576
 
         if self.aux_loss:
             self.box_head = _get_clones(self.box_head, 6)
@@ -53,19 +53,20 @@ class ProContEXT(nn.Module):
         if isinstance(x, list):
             feat_last = x[-1]
         out = self.forward_head(feat_last, None)
-
+        # print(out)
         out.update(aux_dict)
         out['backbone_feat'] = x
         return out
 
     def forward_head(self, cat_feature, gt_score_map=None):
         """
-        cat_feature: output embeddings of the backbone, it can be (HW1+HW2, B, C) or (HW2, B, C)
+        cat_feature: output embeddings of the backbone, it can be (HW1+HW2, B, C) or (HW2, B, C), shape [1, 1152, 768]
+        768: embedded dimension của ViT
         """
-        enc_opt = cat_feature[:, -self.feat_len_s:]  # encoder output for the search region (B, HW, C)
-        opt = (enc_opt.unsqueeze(-1)).permute((0, 3, 2, 1)).contiguous()
+        enc_opt = cat_feature[:, -self.feat_len_s:]  # encoder output for the search region (B, HW, C) shape: [1, 576, 768]
+        opt = (enc_opt.unsqueeze(-1)).permute((0, 3, 2, 1)).contiguous()    # [1, 1, 768, 576]
         bs, Nq, C, HW = opt.size()
-        opt_feat = opt.view(-1, C, self.feat_sz_s, self.feat_sz_s)
+        opt_feat = opt.view(-1, C, self.feat_sz_s, self.feat_sz_s)  # [1, 768, 24, 24]
 
         if self.head_type == "CENTER":
             # run the center head
@@ -118,6 +119,7 @@ def build_procontext(cfg, training=True):
 
     backbone.finetune_track(cfg=cfg, patch_start_index=patch_start_index)
 
+    # Hidden dim = embedded dim (vit_base_patch16_224_ce = 768)
     box_head = build_box_head(cfg, hidden_dim)
 
     model = ProContEXT(

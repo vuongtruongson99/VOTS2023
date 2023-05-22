@@ -20,7 +20,11 @@ def main():
     # # # print(len(dataset[0].ground_truth_rect))
     # trackers = [Tracker(tracker_name, tracker_param, dataset_name, run_id) for run_id in range(run_ids)]
     # print(trackers)
-    run_dataset(dataset, debug=False, threads=3)    # tùy vào số core để chạy
+    for x in dataset:
+        if x.name == 'bus':
+            dataset = [x]
+
+    run_dataset(dataset, debug=False, threads=2)    # tùy vào số core để chạy
 
 if __name__ == '__main__':
     main()

@@ -10,7 +10,9 @@ from lib.train.data.processing_utils import sample_target
 # for debug
 import cv2
 import os
+import numpy as np
 from copy import deepcopy
+import matplotlib.pyplot as plt
 
 from lib.test.tracker.data_utils import Preprocessor
 from lib.utils.box_ops import clip_box
@@ -47,7 +49,7 @@ class ProContEXT(BaseTracker):
         # for save boxes from all queries
         self.z_dict1 = {}
         self.z_dict_list = []
-        self.update_intervals = [200]
+        self.update_intervals = [10]
 
     def initialize(self, image, info: dict):
         # crop templates
@@ -57,9 +59,9 @@ class ProContEXT(BaseTracker):
         z_patch_arr, resize_factor, z_amask_arr = zip(*crop_resize_patches)
         # print(z_patch_arr)
         for idx in range(len(z_patch_arr)):
-            template = self.preprocessor.process(z_patch_arr[idx], z_amask_arr[idx])
+            template = self.preprocessor.process(z_patch_arr[idx], z_amask_arr[idx]) # scale lại ảnh + mask trở thành true false
             with torch.no_grad():
-                self.z_dict1 = template
+                self.z_dict1 = template  # list of NestedTensor, trong class này gồm 2 att: self.tensor(img) và self.mask
             self.z_dict_list.append(self.z_dict1)
         self.box_mask_z = []
         if self.cfg.MODEL.BACKBONE.CE_LOC:
@@ -79,6 +81,7 @@ class ProContEXT(BaseTracker):
     def track(self, image, info: dict = None):
         H, W, _ = image.shape
         self.frame_id += 1
+        # x_patch_arr: search area
         x_patch_arr, resize_factor, x_amask_arr = sample_target(image, self.state, self.params.search_factor,
                                                                 output_sz=self.params.search_size)  # (x1, y1, w, h)
         search = self.preprocessor.process(x_patch_arr, x_amask_arr)
@@ -100,20 +103,23 @@ class ProContEXT(BaseTracker):
         pred_boxes = self.network.box_head.cal_bbox(response, out_dict['size_map'], out_dict['offset_map'])
         pred_boxes = pred_boxes.view(-1, 4)
         # Baseline: Take the mean of all pred boxes as the final result
-        pred_box = (pred_boxes.mean(
-            dim=0) * self.params.search_size / resize_factor).tolist()  # (cx, cy, w, h) [0,1]
+        pred_box = (pred_boxes.mean(dim=0) * self.params.search_size / resize_factor).tolist()  # (cx, cy, w, h) [0,1]
         # get the final box result
         self.state = clip_box(self.map_box_back(pred_box, resize_factor), H, W, margin=10)
 
-        for idx, update_i in enumerate([100]):
-            if self.frame_id % update_i == 0 and conf_score > 0.7:
+        # only dynamic template update!!!
+        for idx, update_i in enumerate(self.update_intervals):
+            if self.frame_id % update_i == 0 and conf_score > 0.6:
                 crop_resize_patches2 = [sample_target(image, self.state, factor, output_sz=self.params.template_size)
                                                     for factor in self.params.template_factor]
                 z_patch_arr2, _, z_amask_arr2 = zip(*crop_resize_patches2)
                 for idx_s in range(len(z_patch_arr2)):
                     template_t = self.preprocessor.process(z_patch_arr2[idx_s], z_amask_arr2[idx_s])
                     self.z_dict_list[idx_s+len(self.params.template_factor)] = template_t
-
+                
+                # for i in range(len(self.params.template_factor) * 2):
+                #     plt.imshow(self.z_dict_list[i].tensors.squeeze().cpu().permute(1, 2, 0))
+                #     plt.show()
         # for debug
         if self.debug:
             if not self.use_visdom:
@@ -123,8 +129,11 @@ class ProContEXT(BaseTracker):
                 save_path = os.path.join(self.save_dir, "%04d.jpg" % self.frame_id)
                 cv2.imwrite(save_path, image_BGR)
             else:
-                self.visdom.register((image, self.state), 'Tracking', 1, 'Tracking')
-
+                if conf_score > 0.6:
+                    bbox = self.state
+                else:
+                    bbox = [0,0,0,0]
+                self.visdom.register((image, bbox), 'Tracking', 1, 'Tracking')
                 self.visdom.register(torch.from_numpy(x_patch_arr).permute(2, 0, 1), 'image', 1, 'search_region')
                 # self.visdom.register(torch.from_numpy(self.z_patch_arr).permute(2, 0, 1), 'image', 1, 'template')
                 self.visdom.register(pred_score_map.view(self.feat_sz, self.feat_sz), 'heatmap', 1, 'score_map')
@@ -141,7 +150,7 @@ class ProContEXT(BaseTracker):
                         self.step = False
                         break
 
-        return {"target_bbox": self.state}
+        return {"target_bbox": self.state} if conf_score > 0.6 else {"target_bbox": [0,0,0,0]}
 
     def map_box_back(self, pred_box: list, resize_factor: float):
         cx_prev, cy_prev = self.state[0] + 0.5 * self.state[2], self.state[1] + 0.5 * self.state[3]

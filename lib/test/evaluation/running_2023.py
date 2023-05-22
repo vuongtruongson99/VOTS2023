@@ -183,10 +183,12 @@ def run_dataset(dataset, debug=False, threads=0, num_gpus=1):
             # 
             # => Giải pháp tạm thời: có bao nhiêu bbox, tạo bấy nhiêu tracker tương ứng với run_id của init_bbox
             # print(len(seq.frames))
-            if len(seq.frames) < 200:
-                for seq_obj_id in iter(seq.init_bbox()):
-                    tracker = Tracker('procontext', 'procontext', 'vot2023', seq.name, seq_obj_id)    # gọi từng tracker cho từng object trong seq
-                    run_sequence(seq, tracker, debug=debug)
+            # if len(seq.frames) < 200:
+            for seq_obj_id in iter(seq.init_bbox()):
+                tracker = Tracker('procontext', 'procontext', 'vot2023', seq.name, seq_obj_id)    # gọi từng tracker cho từng object trong seq
+                
+                # tracker = Tracker('procontext', 'procontext', 'vot2023', seq.name, 2)    # gọi từng tracker cho từng object trong seq
+                run_sequence(seq, tracker, debug=debug)
 
             ######################################################################################################################
   

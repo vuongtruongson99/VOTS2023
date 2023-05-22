@@ -136,6 +136,7 @@ class Tracker:
 
             info = seq.frame_info(frame_num)
             info['previous_output'] = prev_output
+            # time.sleep(2)
             # info['gt_bbox'] = seq.ground_truth_rect[self.run_id]
             # if len(seq.ground_truth_rect) > 1:
             #     print(seq.ground_truth_rect[self.run_id])
