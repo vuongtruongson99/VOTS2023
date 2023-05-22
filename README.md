@@ -8,8 +8,8 @@
 - [x] Visualize kết quả xem sao
 - [x] Chạy với multithread
 - [x] Update toolkit lên 0.6.2
-- [ ] Đặt threshold cho tracker
-- [ ] Tích hợp với SAM
+- [x] Đặt threshold cho tracker
+- [x] Tích hợp với SAM
 
 <p align='left'>
   <img src='assets/framework.png' width='900'/>
