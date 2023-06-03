@@ -10,6 +10,8 @@
 - [x] Update toolkit lên 0.6.2
 - [x] Đặt threshold cho tracker
 - [x] Tích hợp với SAM
+- [x] Chạy online nhiều tracker + SAM
+- [ ] Kết hợp output mask với SAM + DeAOT
 
 <p align='left'>
   <img src='assets/framework.png' width='900'/>

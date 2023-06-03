@@ -104,8 +104,9 @@ class ProContEXT(BaseTracker):
         pred_boxes = pred_boxes.view(-1, 4)
         # Baseline: Take the mean of all pred boxes as the final result
         pred_box = (pred_boxes.mean(dim=0) * self.params.search_size / resize_factor).tolist()  # (cx, cy, w, h) [0,1]
-        # get the final box result
-        self.state = clip_box(self.map_box_back(pred_box, resize_factor), H, W, margin=10)
+        # get the final box result, only update when conf_score > 0.6
+        if conf_score > 0.6:
+            self.state = clip_box(self.map_box_back(pred_box, resize_factor), H, W, margin=10)
 
         # only dynamic template update!!!
         for idx, update_i in enumerate(self.update_intervals):
@@ -132,7 +133,7 @@ class ProContEXT(BaseTracker):
                 if conf_score > 0.6:
                     bbox = self.state
                 else:
-                    bbox = [0,0,0,0]
+                    bbox = [0,0,0,0]     
                 self.visdom.register((image, bbox), 'Tracking', 1, 'Tracking')
                 self.visdom.register(torch.from_numpy(x_patch_arr).permute(2, 0, 1), 'image', 1, 'search_region')
                 # self.visdom.register(torch.from_numpy(self.z_patch_arr).permute(2, 0, 1), 'image', 1, 'template')
