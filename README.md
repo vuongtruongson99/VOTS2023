@@ -11,11 +11,8 @@
 - [x] Đặt threshold cho tracker
 - [x] Tích hợp với SAM
 - [x] Chạy online nhiều tracker + SAM
-- [ ] Kết hợp output mask với SAM + DeAOT
-
-<p align='left'>
-  <img src='assets/framework.png' width='900'/>
-</p>
+- [x] Kết hợp output mask với SAM + DeAOT
+- [ ] Đọc và tìm hiểu thêm về DeAOT
 
 [ProContEXT](https://arxiv.org/abs/2210.15511) achieves SOTA performance on multiple benchmarks.
 
@@ -28,6 +25,24 @@
 
 ### Installation
 You can refer to [OSTrack](https://github.com/botaoye/OSTrack) to install the whole environments and prepare the data.
+
+
+```bash
+bash script/download_ckpt.sh
+bash script/install.sh
+```
+
+## Data Preparation
+Put the tracking datasets in ./data. It should look like:
+   ```
+   ${PROJECT_ROOT}
+    -- data
+        -- vot2023
+            |-- animal
+            |-- ants1
+            |-- bag
+            ...
+   ```
 
 
 ### Set project paths
@@ -49,44 +64,5 @@ python tracking/train.py --script procontext --config procontext --save_dir ./ou
 ```
 
 ### Test
-You can download the trained [model](https://drive.google.com/drive/folders/1d1kKFDoacS67_6mSsWOf3NLEY-Un1gtz?usp=share_link) and put them under directory path: 
-```shell
-${PROJECT_ROOT}/output/checkpoints/train/procontext/procontext_got10k/ProContEXT_ep0100.pth.tar # GOT-10k model
-${PROJECT_ROOT}/output/checkpoints/train/procontext/procontext/ProContEXT_ep0300.pth.tar # TrackingNet model
-```
-Run the following command to test the model:
-```shell
-python tracking/test.py procontext procontext_got10k --dataset got10k_test --threads 16 --num_gpus 4
-python tracking/test.py procontext procontext --dataset trackingnet --threads 16 --num_gpus 4
-```
+Mở jupyter notebook và chạy file đó
 
-
-## Acknowledgment
-Our implementation is mainly based on [OSTrack](https://github.com/botaoye/OSTrack), [Stark](https://github.com/researchmm/Stark), [pytracking](https://github.com/visionml/pytracking), and [Timm](https://github.com/rwightman/pytorch-image-models). We gratefully thank the authors for their wonderful works.
-
-
-## Citation
-Please cite the following paper if this repo helps your research:
-```bibtex
-@article{ProContEXT,
-  author    = {Jin{-}Peng Lan and
-               Zhi{-}Qi Cheng and
-               Jun{-}Yan He and
-               Chenyang Li and
-               Bin Luo and
-               Xu Bao and
-               Wangmeng Xiang and
-               Yifeng Geng and
-               Xuansong Xie},
-  title     = {ProContEXT: Exploring Progressive Context Transformer for Tracking},
-  journal   = {CoRR},
-  volume    = {abs/2210.15511},
-  year      = {2022},
-  url       = {https://doi.org/10.48550/arXiv.2210.15511},
-  doi       = {10.48550/arXiv.2210.15511},
-}
-```
-
-
-## License
-This repo is released under the MIT license. Please see the LICENSE file for more information.
