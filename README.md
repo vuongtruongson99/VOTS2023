@@ -28,6 +28,7 @@ You can refer to [OSTrack](https://github.com/botaoye/OSTrack) to install the wh
 
 
 ```bash
+bash install.sh
 bash script/download_ckpt.sh
 bash script/install.sh
 ```

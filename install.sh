@@ -1,3 +1,6 @@
+echo "****************** Installing torch ******************"
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
+
 echo ""
 echo ""
 echo "****************** Installing yaml ******************"
