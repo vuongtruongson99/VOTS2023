@@ -168,7 +168,7 @@ pytracking/tracking_results/
 pytracking/result_plots/
 pytracking/evaluation/local.py
 pytracking/run_local.py
-data/
+data/vot2023/
 output/
 pretrained_models/
 segment-anything/pretrained/
